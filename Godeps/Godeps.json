@@ -1,0 +1,92 @@
+{
+	"ImportPath": "github.com/fourth/docprinter",
+	"GoVersion": "go1.3.1",
+	"Deps": [
+		{
+			"ImportPath": "code.google.com/p/go.net/html",
+			"Comment": "null-144",
+			"Rev": "ad01a6fcc8a19d3a4478c836895ffe883bd2ceab"
+		},
+		{
+			"ImportPath": "github.com/boj/redistore",
+			"Comment": "v1",
+			"Rev": "9d1554b400d726c7aa54b6e4a836f273b72b97f7"
+		},
+		{
+			"ImportPath": "github.com/codegangsta/negroni",
+			"Comment": "v0.1-27-g46bd821",
+			"Rev": "46bd821940d86fb9777f7f86e9ae428132e110da"
+		},
+		{
+			"ImportPath": "github.com/garyburd/redigo/redis",
+			"Rev": "8d6d4f929affa96b443abd7fdb5a32ffc27865dc"
+		},
+		{
+			"ImportPath": "github.com/goincremental/dal",
+			"Comment": "v0.2.0",
+			"Rev": "c3d951003981b0452c8ec663ca26f305af281544"
+		},
+		{
+			"ImportPath": "github.com/goincremental/negroni-oauth2",
+			"Rev": "9ef2b7b3fbbbfbf1fe9a6c65f94f73505c2d1ca9"
+		},
+		{
+			"ImportPath": "github.com/goincremental/negroni-sessions",
+			"Rev": "df4a04bbb25c4c5e24aaf918958d847e54f736a8"
+		},
+		{
+			"ImportPath": "github.com/golang/oauth2",
+			"Rev": "38c48926828cdb44d8de75fea8e71a2ebe7a9bd2"
+		},
+		{
+			"ImportPath": "github.com/gorilla/context",
+			"Rev": "14f550f51af52180c2eefed15e5fd18d63c0a64a"
+		},
+		{
+			"ImportPath": "github.com/gorilla/mux",
+			"Rev": "4b8fbc56f3b2400a7c7ea3dba9b3539787c486b6"
+		},
+		{
+			"ImportPath": "github.com/gorilla/securecookie",
+			"Rev": "1b0c7f6e9ab3d7f500fd7d50c7ad835ff428139b"
+		},
+		{
+			"ImportPath": "github.com/gorilla/sessions",
+			"Rev": "aa5e036e6c44aec69a32eb41097001978b29ad31"
+		},
+		{
+			"ImportPath": "github.com/microcosm-cc/bluemonday",
+			"Rev": "96d73ba666d750d59b9a44df4600b2e002c04e2d"
+		},
+		{
+			"ImportPath": "github.com/russross/blackfriday",
+			"Comment": "v1.2-6-g74dee4b",
+			"Rev": "74dee4bbbcbfa0b8b6edb04be28176d67859d05f"
+		},
+		{
+			"ImportPath": "github.com/sergi/go-diff/diffmatchpatch",
+			"Rev": "97b2266dfe4bd4ea1b81a463322f04f8b724801e"
+		},
+		{
+			"ImportPath": "github.com/shurcooL/go/github_flavored_markdown",
+			"Rev": "931d9d7e281a3a456cf5f0fa2a032e2e3f0210c7"
+		},
+		{
+			"ImportPath": "github.com/shurcooL/go/u/u7",
+			"Rev": "931d9d7e281a3a456cf5f0fa2a032e2e3f0210c7"
+		},
+		{
+			"ImportPath": "github.com/sourcegraph/annotate",
+			"Rev": "35fbe2df7c605a08bcd5d1cb66e7b794a247decd"
+		},
+		{
+			"ImportPath": "github.com/sourcegraph/syntaxhighlight",
+			"Rev": "08889d1e10003a2a6710f7cc48c1a239f30bb18c"
+		},
+		{
+			"ImportPath": "labix.org/v2/mgo",
+			"Comment": "287",
+			"Rev": "gustavo@niemeyer.net-20140501184651-975yyw9ipld92pji"
+		}
+	]
+}
