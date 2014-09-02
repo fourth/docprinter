@@ -79,6 +79,18 @@ func main() {
 		return
 	})
 
+	assetSrv := negroni.New(&negroni.Static{
+		Dir:    http.Dir("assets"),
+		Prefix: "/assets",
+	})
+
+	assetSrv.UseHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprintf(w, "Not Found")
+	}))
+
+	router.Handle("/assets/{assetpath}", assetSrv)
+
 	router.HandleFunc("/render/{repo:.*}/path/{path:.*}", func(w http.ResponseWriter, req *http.Request) {
 		log.Println("rendering the pdf")
 		vars := mux.Vars(req)
