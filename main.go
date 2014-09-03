@@ -149,7 +149,9 @@ func main() {
 		log.Println("outputting")
 		io.Copy(&md, res.Body)
 
-		io.WriteString(w, `<html><head><meta charset="utf-8"><link href="https://github.com/assets/github.css" media="all" rel="stylesheet" type="text/css" /></head><body><article class="markdown-body entry-content" style="padding: 30px;">`)
+		io.WriteString(w, `<html><head><meta charset="utf-8">
+<link href='http://fonts.googleapis.com/css?family=Merriweather' rel='stylesheet' type='text/css'>
+<link href="/assets/print.css" media="all" rel="stylesheet" type="text/css" /></head><body><article class="markdown-body entry-content" style="padding: 30px;">`)
 
 		w.Write(github_flavored_markdown.Markdown(md.Bytes()))
 
