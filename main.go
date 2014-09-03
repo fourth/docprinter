@@ -2,12 +2,15 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"os"
 	"os/exec"
+	"strings"
+
+	"flag"
 
 	"github.com/codegangsta/negroni"
 	"github.com/goincremental/negroni-oauth2"
@@ -16,7 +19,37 @@ import (
 	"github.com/shurcooL/go/github_flavored_markdown"
 )
 
+type config struct {
+	clientID     string
+	secret       string
+	redirectHost string
+}
+
+func (c *config) Validate() error {
+	c.clientID = strings.TrimSpace(c.clientID)
+	c.secret = strings.TrimSpace(c.secret)
+	c.redirectHost = strings.TrimSpace(c.redirectHost)
+	if c.clientID == "" || c.secret == "" || c.redirectHost == "" {
+		return errors.New("All flags must be provided.")
+	}
+
+	return nil
+}
+
 func main() {
+	cfg := &config{}
+	flag.StringVar(&cfg.clientID, "clientID", "", "Github client ID")
+	flag.StringVar(&cfg.secret, "secret", "", "Github client secret")
+	flag.StringVar(&cfg.redirectHost, "host", "localhost", "the host where this is running")
+
+	flag.Parse()
+
+	err := cfg.Validate()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	secureMux := mux.NewRouter()
 	client := &http.Client{}
 
@@ -54,12 +87,14 @@ func main() {
 	secure.Use(oauth2.LoginRequired())
 	secure.UseHandler(secureMux)
 
+	redirectURL := fmt.Sprintf("http://%s/oauth2callback", cfg.redirectHost)
+
 	n := negroni.New()
 	n.Use(sessions.Sessions("my_session", sessions.NewCookieStore([]byte("secret123"))))
 	github := oauth2.Github(&oauth2.Options{
-		ClientID:     os.Getenv("CLIENT_ID"),
-		ClientSecret: os.Getenv("CLIENT_SECRET"),
-		RedirectURL:  "http://docprint.sjjdev.com/oauth2callback",
+		ClientID:     cfg.clientID,
+		ClientSecret: cfg.secret,
+		RedirectURL:  redirectURL,
 		Scopes:       []string{"repo"},
 	})
 	n.Use(github)
