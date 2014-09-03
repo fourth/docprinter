@@ -53,22 +53,16 @@ func main() {
 	secureMux := mux.NewRouter()
 	client := &http.Client{}
 
-	secureMux.HandleFunc("/print/{repo:.*}/path/{path:.*}", func(w http.ResponseWriter, req *http.Request) {
+	secureMux.HandleFunc("/{repo:.+}/blob/{ref}/{path:.+}", func(w http.ResponseWriter, req *http.Request) {
 		log.Println("Making the pdf")
 		token := oauth2.GetToken(req).Access()
 		log.Println(req.URL)
 		vars := mux.Vars(req)
 		repo := vars["repo"]
 		path := vars["path"]
+		ref := vars["ref"]
 		host := req.Host
-		q := req.URL.Query()
-		ref, ok := q["ref"]
-		var renderUrl string
-		if ok {
-			renderUrl = fmt.Sprintf("http://%s/render/%s/path/%s?token=%s&ref=%s", host, repo, path, token, ref[0])
-		} else {
-			renderUrl = fmt.Sprintf("http://%s/render/%s/path/%s?token=%s", host, repo, path, token)
-		}
+		renderUrl := fmt.Sprintf("http://%s/render/%s/path/%s?token=%s&ref=%s", host, repo, path, token, ref)
 
 		cmd := exec.Command("phantomjs", "./renderpdf.js", renderUrl)
 		log.Println(renderUrl)
