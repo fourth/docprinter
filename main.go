@@ -136,10 +136,13 @@ func main() {
 		githubreq, _ := http.NewRequest("GET", urlStr, nil)
 		githubreq.Header.Add("Authorization", "Bearer "+token)
 		githubreq.Header.Add("Accept", "application/vnd.github.v3.raw")
+
 		res, err := client.Do(githubreq)
 		if err != nil {
 			fmt.Fprintln(w, err)
+			return
 		}
+
 		defer res.Body.Close()
 
 		var md bytes.Buffer
