@@ -61,7 +61,15 @@ func main() {
 		repo := vars["repo"]
 		path := vars["path"]
 		host := req.Host
-		renderUrl := fmt.Sprintf("http://%s/render/%s/path/%s?token=%s", host, repo, path, token)
+		q := req.URL.Query()
+		ref, ok := q["ref"]
+		var renderUrl string
+		if ok {
+			renderUrl = fmt.Sprintf("http://%s/render/%s/path/%s?token=%s&ref=%s", host, repo, path, token, ref[0])
+		} else {
+			renderUrl = fmt.Sprintf("http://%s/render/%s/path/%s?token=%s", host, repo, path, token)
+		}
+
 		cmd := exec.Command("phantomjs", "./renderpdf.js", renderUrl)
 		log.Println(renderUrl)
 		stdout, err := cmd.StdoutPipe()
@@ -131,7 +139,11 @@ func main() {
 		path := vars["path"]
 		query := req.URL.Query()
 		token := query.Get("token")
+		ref, refpresent := query["ref"]
 		urlStr := fmt.Sprintf("https://api.github.com/repos/%s/contents/%s", repo, path)
+		if refpresent {
+			urlStr += fmt.Sprintf("?ref=%s", ref[0])
+		}
 		log.Println(urlStr)
 		githubreq, _ := http.NewRequest("GET", urlStr, nil)
 		githubreq.Header.Add("Authorization", "Bearer "+token)
