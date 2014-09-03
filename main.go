@@ -3,14 +3,19 @@ package main
 import (
 	"bytes"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os/exec"
+	"path"
+	"regexp"
 	"strings"
 
-	"flag"
+	"encoding/base64"
+
+	"encoding/json"
 
 	"github.com/codegangsta/negroni"
 	"github.com/goincremental/negroni-oauth2"
@@ -34,6 +39,51 @@ func (c *config) Validate() error {
 	}
 
 	return nil
+}
+
+var (
+	imageRe      *regexp.Regexp
+	imagePartsRe *regexp.Regexp
+	absImageUrl  *regexp.Regexp
+)
+
+func init() {
+	var err error
+	imageRe, err = regexp.Compile("!\\[[^\\]]+\\]\\([^\\)]+\\)")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	imagePartsRe, err = regexp.Compile("!\\[([^\\]]+)\\]\\(([^\\)\\s]+)(\\s\".*\")?\\)")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	absImageUrl, err = regexp.Compile("!\\[([^\\]]+)\\]\\((https?://[^\\)]+)\\)")
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func relToAbsImg(md []byte, repo, ref, p, token string) []byte {
+	p = path.Dir(p)
+
+	for _, match := range imageRe.FindAll(md, -1) {
+		parts := imagePartsRe.FindSubmatch(match)
+		img := parts[2]
+		absimg := fmt.Sprintf("/githubimage/%s/ref/%s/%s/%s?token=%s", repo, ref, p, string(img), token)
+		md = bytes.Replace(md, img, []byte(absimg), -1)
+	}
+
+	return md
+}
+
+type GithubContent struct {
+	Content string `json:"content"`
+}
+
+func (c *GithubContent) ContentAsBytes() ([]byte, error) {
+	return base64.StdEncoding.DecodeString(c.Content)
 }
 
 func main() {
@@ -126,6 +176,47 @@ func main() {
 
 	router.Handle("/assets/{assetpath}", assetSrv)
 
+	router.HandleFunc("/githubimage/{repo:.+}/ref/{ref}/{path:.+}", func(w http.ResponseWriter, req *http.Request) {
+		query := req.URL.Query()
+		token := query.Get("token")
+		vars := mux.Vars(req)
+		repo := vars["repo"]
+		path := vars["path"]
+		ref := vars["ref"]
+		log.Println("Getting image %s from %s", path, repo)
+		url := fmt.Sprintf("https://api.github.com/repos/%s/contents/%s?ref=%s", repo, path, ref)
+		log.Println("Api URL = ", url)
+		githubreq, _ := http.NewRequest("GET", url, nil)
+		githubreq.Header.Add("Authorization", "Bearer "+token)
+
+		res, err := client.Do(githubreq)
+		if err != nil {
+			fmt.Fprintln(w, err)
+			return
+		}
+
+		defer res.Body.Close()
+
+		dec := json.NewDecoder(res.Body)
+		var content GithubContent
+		err = dec.Decode(&content)
+		if err != nil {
+			fmt.Fprintln(w, err)
+			return
+		}
+
+		img, err := content.ContentAsBytes()
+
+		log.Println("Got bytes", len(img))
+
+		if err != nil {
+			fmt.Fprintln(w, err)
+			return
+		}
+
+		w.Write(img)
+	})
+
 	router.HandleFunc("/render/{repo:.*}/path/{path:.*}", func(w http.ResponseWriter, req *http.Request) {
 		log.Println("rendering the pdf")
 		vars := mux.Vars(req)
@@ -160,7 +251,7 @@ func main() {
 <link href='http://fonts.googleapis.com/css?family=Merriweather' rel='stylesheet' type='text/css'>
 <link href="/assets/print.css" media="all" rel="stylesheet" type="text/css" /></head><body><article class="markdown-body entry-content" style="padding: 30px;">`)
 
-		w.Write(github_flavored_markdown.Markdown(md.Bytes()))
+		w.Write(github_flavored_markdown.Markdown(relToAbsImg(md.Bytes(), repo, ref[0], path, token)))
 
 		if err != nil {
 			fmt.Fprintln(w, err)
