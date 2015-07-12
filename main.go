@@ -21,7 +21,7 @@ import (
 	"github.com/goincremental/negroni-oauth2"
 	"github.com/goincremental/negroni-sessions"
 	"github.com/gorilla/mux"
-	"github.com/shurcooL/go/github_flavored_markdown"
+	"github.com/shurcooL/github_flavored_markdown"
 )
 
 type config struct {
